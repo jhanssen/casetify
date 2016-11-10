@@ -45,3 +45,6 @@ class Casetify:
 
     def writeOutput(self, integration, action, value):
         self.writer.write("#OUTPUT,{},{},{}\r\n".format(integration, action, value).encode())
+
+    def queryOutput(self, integration, action):
+        self.write.write("?OUTPUT,{},{}\r\n".format(integration, action).encode())

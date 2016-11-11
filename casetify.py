@@ -8,13 +8,14 @@ OUTPUT_RE = re.compile(b"~(OUTPUT),([^,]+),([^,]+),([^\r]+)\r\n")
 
 class Casetify:
     """Async class to communicate with Lutron Caseta"""
-
     loop = asyncio.get_event_loop()
-    readbuffer = b""
+
+    def __init__(self):
+        self.readbuffer = b""
 
     @asyncio.coroutine
     def open(self, host, port=23, username=DEFAULT_USER, password=DEFAULT_PASSWORD):
-        self.reader, self.writer = yield from asyncio.open_connection(host, port, loop=self.loop)
+        self.reader, self.writer = yield from asyncio.open_connection(host, port, loop=Casetify.loop)
         yield from self._readuntil(b"login: ")
         self.writer.write(username + b"\r\n")
         yield from self._readuntil(b"password: ")

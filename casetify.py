@@ -24,7 +24,6 @@ class Casetify:
     @asyncio.coroutine
     def _readuntil(self, value):
         while True:
-            self.readbuffer += yield from self.reader.read(READ_SIZE)
             if hasattr(value, "search"):
                 # assume regular expression
                 m = value.search(self.readbuffer)
@@ -36,6 +35,7 @@ class Casetify:
                 if where != -1:
                     self.readbuffer = self.readbuffer[where + len(value):]
                     return True
+            self.readbuffer += yield from self.reader.read(READ_SIZE)
 
     @asyncio.coroutine
     def readOutput(self):

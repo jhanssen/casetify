@@ -1,11 +1,11 @@
 import asyncio
 import re
-from enum import Enum
+from enum import IntEnum
 
 READ_SIZE = 1024
 DEFAULT_USER = b"lutron"
 DEFAULT_PASSWORD = b"integration"
-CASETA_RE = re.compile(b"~([A-Z]+),([^,]+),([^,]+),([^\r]+)\r\n")
+CASETA_RE = re.compile(b"~([A-Z]+),([^,\r\n]+),([^,\r\n]+),([^\r\n]+)\r\n")
 
 class Casetify:
     """Async class to communicate with Lutron Caseta"""
@@ -14,10 +14,10 @@ class Casetify:
     OUTPUT = "OUTPUT"
     DEVICE = "DEVICE"
 
-    class Action(Enum):
+    class Action(IntEnum):
         SET = 1
 
-    class Button(Enum):
+    class Button(IntEnum):
         DOWN = 3
         UP = 4
 
@@ -56,7 +56,11 @@ class Casetify:
         return match.group(1).decode("utf-8"), int(match.group(2)), int(match.group(3)), float(match.group(4))
 
     def write(self, mode, integration, action, value):
+        if hasattr(action, "value"):
+            action = action.value
         self.writer.write("#{},{},{},{}\r\n".format(mode, integration, action, value).encode())
 
     def query(self, mode, integration, action):
+        if hasattr(action, "value"):
+            action = action.value
         self.writer.write("?{},{},{}\r\n".format(mode, integration, action).encode())

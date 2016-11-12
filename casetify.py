@@ -1,5 +1,6 @@
 import asyncio
 import re
+from enum import Enum
 
 READ_SIZE = 1024
 DEFAULT_USER = b"lutron"
@@ -12,6 +13,13 @@ class Casetify:
 
     OUTPUT = "OUTPUT"
     DEVICE = "DEVICE"
+
+    class Action(Enum):
+        SET = 1
+
+    class Button(Enum):
+        DOWN = 3
+        UP = 4
 
     def __init__(self):
         self.readbuffer = b""

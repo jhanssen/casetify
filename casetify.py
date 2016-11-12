@@ -4,11 +4,14 @@ import re
 READ_SIZE = 1024
 DEFAULT_USER = b"lutron"
 DEFAULT_PASSWORD = b"integration"
-OUTPUT_RE = re.compile(b"~(OUTPUT),([^,]+),([^,]+),([^\r]+)\r\n")
+CASETA_RE = re.compile(b"~([A-Z]+),([^,]+),([^,]+),([^\r]+)\r\n")
 
 class Casetify:
     """Async class to communicate with Lutron Caseta"""
     loop = asyncio.get_event_loop()
+
+    OUTPUT = "OUTPUT"
+    DEVICE = "DEVICE"
 
     def __init__(self):
         self.readbuffer = b""
@@ -39,13 +42,13 @@ class Casetify:
             self.readbuffer += yield from self.reader.read(READ_SIZE)
 
     @asyncio.coroutine
-    def readOutput(self):
-        match = yield from self._readuntil(OUTPUT_RE)
-        # 2 = integration number, 3 = action number, 4 = value
-        return int(match.group(2)), int(match.group(3)), float(match.group(4))
+    def read(self):
+        match = yield from self._readuntil(CASETA_RE)
+        # 1 = mode, 2 = integration number, 3 = action number, 4 = value
+        return match.group(1).decode("utf-8"), int(match.group(2)), int(match.group(3)), float(match.group(4))
 
-    def writeOutput(self, integration, action, value):
-        self.writer.write("#OUTPUT,{},{},{}\r\n".format(integration, action, value).encode())
+    def write(self, mode, integration, action, value):
+        self.writer.write("#{},{},{},{}\r\n".format(mode, integration, action, value).encode())
 
-    def queryOutput(self, integration, action):
-        self.writer.write("?OUTPUT,{},{}\r\n".format(integration, action).encode())
+    def query(self, mode, integration, action):
+        self.writer.write("?{},{},{}\r\n".format(mode, integration, action).encode())
